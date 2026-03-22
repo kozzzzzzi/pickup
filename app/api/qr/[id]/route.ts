@@ -33,7 +33,7 @@ export async function GET(_: Request, { params }: Props) {
 
   const fileName = sanitizeFileName(order.pickupPersonName);
 
-  return new NextResponse(png, {
+  return new NextResponse(new Uint8Array(png), {
     status: 200,
     headers: {
       "Content-Type": "image/png",

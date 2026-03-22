@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Order {
+  id               String   @id @default(cuid())
+  sheetRowIndex    Int      @unique
+  token            String   @unique
+  pickupDate       String
+  pickupPersonName String
+  email            String
+  phone            String
+  depositorName    String
+  depositAmount    Int
+  depositDate      String
+  depositTime      String
+  items            Json
+  status           String   @default("pending")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model SyncState {
+  id         String   @id @default("main")
+  updatedAt  DateTime @default(now())
+}

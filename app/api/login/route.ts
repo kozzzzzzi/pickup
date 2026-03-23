@@ -10,10 +10,13 @@ export async function POST(request: Request) {
   const adminPw = process.env.ADMIN_PASSWORD || "1234";
 
   if (username !== adminId || password !== adminPw) {
-    return NextResponse.redirect(new URL("/login?error=1", request.url));
+    return NextResponse.json(
+      { ok: false, message: "invalid_credentials" },
+      { status: 401 }
+    );
   }
 
   await createSession(true);
 
-  return NextResponse.redirect(new URL("/dashboard", request.url));
+  return NextResponse.json({ ok: true });
 }

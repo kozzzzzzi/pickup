@@ -7,10 +7,20 @@ import { useRouter } from "next/navigation";
 export default function ScanPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const lastTokenRef = useRef("");
+  const lastScanRef = useRef<{ token: string; time: number }>({
+    token: "",
+    time: 0,
+  });
   const lockedRef = useRef(false);
   const router = useRouter();
-  const [message, setMessage] = useState("카메라 준비 중");
+
+  const [message, setMessage] = useState("QR을 화면 안에 맞춰 주세요.");
+  const [toast, setToast] = useState("");
+
+  const showToast = (text: string) => {
+    setToast(text);
+    window.setTimeout(() => setToast(""), 1600);
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -18,6 +28,9 @@ export default function ScanPage() {
 
     async function start() {
       try {
+        lastScanRef.current = { token: "", time: 0 };
+        lockedRef.current = false;
+
         reader = new BrowserMultiFormatReader();
 
         let stream: MediaStream;
@@ -43,7 +56,7 @@ export default function ScanPage() {
         streamRef.current = stream;
 
         if (!videoRef.current) {
-          setMessage("카메라를 시작할 수 없습니다.");
+          showToast("카메라를 시작할 수 없습니다.");
           return;
         }
 
@@ -58,15 +71,23 @@ export default function ScanPage() {
           const token = result.getText().trim();
           if (!token) return;
 
-          if (token === lastTokenRef.current) return;
-          lastTokenRef.current = token;
+          const now = Date.now();
+          const isSameRecentToken =
+            lastScanRef.current.token === token &&
+            now - lastScanRef.current.time < 1500;
+
+          if (isSameRecentToken) return;
+
+          lastScanRef.current = { token, time: now };
           lockedRef.current = true;
           setMessage("확인 중...");
 
           try {
             const response = await fetch(
               `/api/scan/lookup?token=${encodeURIComponent(token)}`,
-              { cache: "no-store" }
+              {
+                cache: "no-store",
+              }
             );
 
             const data = await response.json();
@@ -81,21 +102,25 @@ export default function ScanPage() {
               return;
             }
 
-            setMessage("등록되지 않은 QR입니다.");
-            setTimeout(() => {
+            showToast("등록되지 않은 QR입니다.");
+            setMessage("QR을 화면 안에 맞춰 주세요.");
+
+            window.setTimeout(() => {
               lockedRef.current = false;
-              setMessage("QR을 화면 안에 맞춰 주세요.");
+              lastScanRef.current = { token: "", time: 0 };
             }, 1200);
           } catch {
-            setMessage("조회 중 오류가 발생했습니다.");
-            setTimeout(() => {
+            showToast("조회 중 오류가 발생했습니다.");
+            setMessage("QR을 화면 안에 맞춰 주세요.");
+
+            window.setTimeout(() => {
               lockedRef.current = false;
-              setMessage("QR을 화면 안에 맞춰 주세요.");
+              lastScanRef.current = { token: "", time: 0 };
             }, 1200);
           }
         });
       } catch {
-        setMessage("카메라에 접근할 수 없습니다.");
+        showToast("카메라에 접근할 수 없습니다.");
       }
     }
 
@@ -106,6 +131,7 @@ export default function ScanPage() {
       lockedRef.current = true;
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
+      lastScanRef.current = { token: "", time: 0 };
 
       if (videoRef.current) {
         videoRef.current.srcObject = null;
@@ -115,12 +141,18 @@ export default function ScanPage() {
 
   return (
     <div className="scan-shell">
+      <h1 className="scan-title">QR 스캔</h1>
+      <p className="scan-subtitle">
+        구매자가 제시한 QR을 카메라 안쪽에 맞춰 주세요.
+      </p>
 
       <div className="camera-card">
         <video ref={videoRef} className="camera-video" muted playsInline />
         <div className="camera-guide" />
         <div className="camera-text">{message}</div>
       </div>
+
+      {toast ? <div className="top-toast">{toast}</div> : null}
     </div>
   );
 }

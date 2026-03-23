@@ -94,7 +94,7 @@ export default function OrderActionPanel({
         </button>
       )}
 
-      {toast ? <div className="bottom-toast">{toast}</div> : null}
+      {toast ? <div className="top-toast">{toast}</div> : null}
     </>
   );
 }

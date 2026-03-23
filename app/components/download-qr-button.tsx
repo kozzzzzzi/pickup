@@ -18,7 +18,7 @@ export default function DownloadQrButton({ orderId, fileName }: Props) {
     try {
       setDownloading(true);
 
-      const response = await fetch(`/api/qr/${orderId}`, {
+      const response = await fetch(`/api/qr/${orderId}/image.png`, {
         method: "GET",
         cache: "no-store",
       });

@@ -23,16 +23,21 @@ export default function CopyQrLinkButton({ orderId }: Props) {
 
   return (
     <>
-      <button
-        className="secondary-button"
-        type="button"
+      <span
         onClick={handleCopy}
-        style={{ width: "100%" }}
+        style={{
+          fontSize: 12,
+          color: "#666",
+          cursor: "pointer",
+          lineHeight: 1,
+        }}
       >
         QR 링크 복사
-      </button>
+      </span>
 
-      {copied ? <div className="top-toast">QR 링크가 복사되었습니다.</div> : null}
+      {copied ? (
+        <div className="top-toast">QR 링크가 복사되었습니다.</div>
+      ) : null}
     </>
   );
 }

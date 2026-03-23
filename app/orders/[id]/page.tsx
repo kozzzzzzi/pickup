@@ -61,26 +61,30 @@ export default async function OrderDetailPage({ params }: Props) {
       </div>
 
       <div className="section">
-        <DownloadQrButton
-  orderId={order.id}
-  fileName={order.pickupPersonName}
-/>
+  <OrderActionPanel
+    orderId={order.id}
+    initialReceived={received}
+  />
 
-<div style={{ height: 10 }} />
+  <div style={{ height: 10 }} />
 
-<CopyQrLinkButton orderId={order.id} />
+  <div style={{ display: "flex", gap: 8 }}>
+  <div style={{ flex: 1 }}>
+    <DownloadQrButton
+      orderId={order.id}
+      fileName={order.pickupPersonName}
+    />
+  </div>
 
-        <div style={{ height: 10 }} />
+  <div style={{ flex: 1 }}>
+    <CopyQrLinkButton orderId={order.id} />
+  </div>
+</div>
 
-        <OrderActionPanel
-  orderId={order.id}
-  initialReceived={received}
-/>
-
-        <Link href="/scan" className="ghost-link">
-          다시 스캔
-        </Link>
-      </div>
+  <Link href="/scan" className="ghost-link">
+    다시 스캔
+  </Link>
+</div>
     </div>
   );
 }

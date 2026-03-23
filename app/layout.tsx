@@ -12,13 +12,6 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <div className="app-shell">
-          <header className="app-header">
-            <div className="app-header-inner">
-              <Link href="/dashboard" className="brand">
-                PICKUP
-              </Link>
-            </div>
-          </header>
 
           <main className="app-main">{children}</main>
 

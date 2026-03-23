@@ -51,6 +51,7 @@ export default function DownloadQrButton({ orderId, fileName }: Props) {
   return (
     <button
       className="secondary-button"
+      style={{ width: "100%" }}
       type="button"
       onClick={handleDownload}
       disabled={downloading}

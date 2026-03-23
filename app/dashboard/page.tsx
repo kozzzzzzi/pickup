@@ -69,14 +69,20 @@ export default function DashboardPage() {
   }, []);
 
   const dateOptions = useMemo(() => {
-    return Array.from(
-      new Set(
-        orders
-          .map((order) => order.pickupDate)
-          .filter((date: string): date is string => Boolean(date))
-      )
-    );
-  }, [orders]);
+  return Array.from(
+    new Set(
+      orders
+        .map((order) => order.pickupDate)
+        .filter((date: string): date is string => Boolean(date))
+    )
+  ).sort((a, b) => {
+    const [am, ad] = a.split("/").map(Number);
+    const [bm, bd] = b.split("/").map(Number);
+
+    if (am !== bm) return am - bm;
+    return ad - bd;
+  });
+}, [orders]);
 
   const filteredOrders = useMemo(() => {
     if (!selectedDate) return orders;

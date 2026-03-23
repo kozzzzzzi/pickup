@@ -483,3 +483,49 @@ select {
   background: #111111;
   color: #ffffff;
 }
+
+.global-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.global-loading-spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 2px solid #e8e8e8;
+  border-top-color: #111111;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.bottom-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 86px;
+  transform: translateX(-50%);
+
+  padding: 12px 16px;
+  border-radius: 999px;
+
+  background: rgba(17, 17, 17, 0.92);
+  color: #ffffff;
+
+  font-size: 13px;       /* 👉 글자 크기 조절 */
+  line-height: 1.2;      /* 👉 줄 간격 */
+  letter-spacing: -0.01em;
+
+  white-space: nowrap;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12); /* 👉 살짝 떠있는 느낌 */
+
+  z-index: 60;
+}

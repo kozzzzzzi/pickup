@@ -5,7 +5,7 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-export async function POST(request: Request, { params }: Props) {
+export async function POST(_: Request, { params }: Props) {
   const { id } = await params;
 
   await db.order.update({
@@ -13,5 +13,5 @@ export async function POST(request: Request, { params }: Props) {
     data: { status: "pending" },
   });
 
-  return NextResponse.redirect(new URL(`/orders/${id}`, request.url));
+  return NextResponse.json({ ok: true });
 }

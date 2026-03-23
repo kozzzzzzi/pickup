@@ -1,3 +1,6 @@
+import { redirect } from "next/navigation";
+import { verifySession } from "@/lib/auth";
+
 type Props = {
   searchParams?: Promise<{ error?: string }>;
 };
@@ -5,6 +8,12 @@ type Props = {
 export default async function LoginPage({ searchParams }: Props) {
   const params = await searchParams;
   const hasError = params?.error === "1";
+
+  const isLoggedIn = await verifySession();
+
+  if (isLoggedIn) {
+    redirect("/dashboard");
+  }
 
   return (
     <div>

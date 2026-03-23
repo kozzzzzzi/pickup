@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
+import DownloadQrButton from "@/app/components/download-qr-button";
+import OrderActionPanel from "@/app/components/order-action-panel";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -58,25 +60,17 @@ export default async function OrderDetailPage({ params }: Props) {
       </div>
 
       <div className="section">
-        <a href={`/api/qr/${order.id}`}>
-          <button className="secondary-button">QR 다운로드</button>
-        </a>
+        <DownloadQrButton
+  orderId={order.id}
+  fileName={order.pickupPersonName}
+/>
 
         <div style={{ height: 10 }} />
 
-        {received ? (
-          <form action={`/api/orders/${order.id}/undo`} method="post">
-            <button className="secondary-button" type="submit">
-              수령 완료 취소
-            </button>
-          </form>
-        ) : (
-          <form action={`/api/orders/${order.id}/receive`} method="post">
-            <button className="primary-button" type="submit">
-              수령 완료
-            </button>
-          </form>
-        )}
+        <OrderActionPanel
+  orderId={order.id}
+  initialReceived={received}
+/>
 
         <Link href="/scan" className="ghost-link">
           다시 스캔

@@ -7,20 +7,38 @@ import { useRouter } from "next/navigation";
 export default function ScanPage() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const [message, setMessage] = useState("카메라 준비 중");
+  const lastTokenRef = useRef("");
+  const lockedRef = useRef(false);
   const router = useRouter();
+  const [message, setMessage] = useState("카메라 준비 중");
 
   useEffect(() => {
-    let stopped = false;
+    let mounted = true;
+    let reader: BrowserMultiFormatReader | null = null;
 
     async function start() {
       try {
-        const reader = new BrowserMultiFormatReader();
+        reader = new BrowserMultiFormatReader();
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-          audio: false,
-        });
+        let stream: MediaStream;
+
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: { ideal: "environment" },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+            audio: false,
+          });
+        } catch {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: true,
+            audio: false,
+          });
+        }
+
+        if (!mounted) return;
 
         streamRef.current = stream;
 
@@ -35,22 +53,45 @@ export default function ScanPage() {
         setMessage("QR을 화면 안에 맞춰 주세요.");
 
         reader.decodeFromVideoElement(videoRef.current, async (result) => {
-          if (result && !stopped) {
-            stopped = true;
-            streamRef.current?.getTracks().forEach((track) => track.stop());
+          if (!result || lockedRef.current) return;
 
-            const token = result.getText().trim();
+          const token = result.getText().trim();
+          if (!token) return;
+
+          if (token === lastTokenRef.current) return;
+          lastTokenRef.current = token;
+          lockedRef.current = true;
+          setMessage("확인 중...");
+
+          try {
             const response = await fetch(
-              `/api/scan/lookup?token=${encodeURIComponent(token)}`
+              `/api/scan/lookup?token=${encodeURIComponent(token)}`,
+              { cache: "no-store" }
             );
+
             const data = await response.json();
 
             if (data.ok && data.orderId) {
-              router.push(`/orders/${data.orderId}`);
+              try {
+                navigator.vibrate?.(60);
+              } catch {}
+
+              streamRef.current?.getTracks().forEach((track) => track.stop());
+              router.replace(`/orders/${data.orderId}`);
               return;
             }
 
             setMessage("등록되지 않은 QR입니다.");
+            setTimeout(() => {
+              lockedRef.current = false;
+              setMessage("QR을 화면 안에 맞춰 주세요.");
+            }, 1200);
+          } catch {
+            setMessage("조회 중 오류가 발생했습니다.");
+            setTimeout(() => {
+              lockedRef.current = false;
+              setMessage("QR을 화면 안에 맞춰 주세요.");
+            }, 1200);
           }
         });
       } catch {
@@ -61,14 +102,19 @@ export default function ScanPage() {
     start();
 
     return () => {
-      stopped = true;
+      mounted = false;
+      lockedRef.current = true;
       streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
     };
   }, [router]);
 
   return (
     <div className="scan-shell">
-      <h1 className="scan-title">QR 스캔</h1>
 
       <div className="camera-card">
         <video ref={videoRef} className="camera-video" muted playsInline />

@@ -23,7 +23,7 @@ export default function OrdersListClient({
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [selectedDate, setSelectedDate] = useState<string>("all");
-  const [sortType, setSortType] = useState<"date" | "name">("date");
+  const [sortType, setSortType] = useState<"date" | "name">("name");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const dateOptions = useMemo(() => {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import CopyAllQrLinksButton from "@/app/components/copy-all-qr-links-button";
 
 export type DbOrderView = {
   id: string;
@@ -49,11 +50,18 @@ export default function OrdersListClient({
         이름이나 전화번호로 빠르게 찾을 수 있습니다.
       </p>
 
-      <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end" }}>
-        <a href="/api/qr/all" style={{ fontSize: 12, color: "#666" }}>
-          전체 QR 다운로드
-        </a>
-      </div>
+      <div style={{ marginTop: 10, display: "flex", justifyContent: "flex-end", gap: 10 }}>
+  <a href="/api/qr/all" style={{ fontSize: 12, color: "#666" }}>
+    전체 QR 다운로드
+  </a>
+
+  <CopyAllQrLinksButton
+    orders={orders.map((o) => ({
+      id: o.id,
+      pickupPersonName: o.pickupPersonName,
+    }))}
+  />
+</div>
 
       <div className="search-wrap">
         <input

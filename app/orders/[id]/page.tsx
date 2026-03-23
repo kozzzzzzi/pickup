@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import DownloadQrButton from "@/app/components/download-qr-button";
 import OrderActionPanel from "@/app/components/order-action-panel";
+import CopyQrLinkButton from "@/app/components/copy-qr-link-button";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -64,6 +65,10 @@ export default async function OrderDetailPage({ params }: Props) {
   orderId={order.id}
   fileName={order.pickupPersonName}
 />
+
+<div style={{ height: 10 }} />
+
+<CopyQrLinkButton orderId={order.id} />
 
         <div style={{ height: 10 }} />
 
